@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile 
+    container_name: poodle_backend_prod
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+    ports:
+      - '${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}'
+    networks:
+      - poodle_net
+    environment:
+      - USE_SUPABASE=${USE_SUPABASE}
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=${BACKEND_PORT:-3000}
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_USE_SUPABASE=${VITE_USE_SUPABASE}
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    container_name: poodle_frontend_prod
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '${FRONTEND_PORT:-5173}:5173'
+    networks:
+      - poodle_net
+    environment:
+      - PORT=5173
+      - HOST=0.0.0.0
+
+networks:
+  poodle_net:
+    driver: bridge

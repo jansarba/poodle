@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Wczytywanie...",
+    "error": "Błąd",
+    "back_to_polls": "Wróć do wszystkich ankiet",
+    "days": "dni"
+  },
+  "home": {
+    "title": "Poodle Scheduler",
+    "subtitle": "Prosty sposób na planowanie wydarzeń.",
+    "create_poll_header": "Stwórz nową ankietę",
+    "existing_polls_header": "Istniejące ankiety",
+    "form_title": "Tytuł",
+    "title_placeholder": "np. Spotkanie zespołu",
+    "form_description": "Opis (opcjonalnie)",
+    "description_placeholder": "np. Tygodniowa synchronizacja w projekcie X",
+    "select_dates": "Wybierz daty",
+    "created_on": "Utworzono",
+    "no_polls": "Nie znaleziono ankiet. Stwórz pierwszą, aby zacząć!"
+  },
+  "poll_page": {
+    "cast_your_vote": "Oddaj swój głos",
+    "your_name": "Twoje imię",
+    "voter_name_placeholder": "np. Jan Kowalski",
+    "available_time_slots": "Dostępne terminy",
+    "submit_vote": "Oddaj głos",
+    "submitting": "Przesyłanie...",
+    "results": "Wyniki",
+    "copy_link": "Kopiuj link do udostępniania",
+    "copied": "Skopiowano!",
+    "votes_plural": "{count, plural, one {# głos} few {# głosy} many {# głosów} other {# głosu}}",
+    "participants_header": "Uczestnicy ({totalVotes})",
+    "no_votes": "Nikt jeszcze nie zagłosował. Bądź pierwszy!",
+    "validation_alert_name": "Proszę podać swoje imię, aby zagłosować.",
+    "validation_alert_slots": "Proszę wybrać co najmniej jeden termin."
+  },
+  "errors": {
+    "title_required": "Tytuł jest wymagany.",
+    "select_at_least_one_date": "Musisz wybrać co najmniej jedną datę."
+  },
+  "theme_switcher": {
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Systemowy",
+    "toggle_aria_label": "Zmień motyw"
+  },
+  "lang_switcher": {
+    "label": "Wybierz język",
+    "toggle_aria_label": "Zmień język"
+  },
+  "login_page": {
+    "welcome": "Witaj",
+    "subtitle": "Zaloguj się lub utwórz konto, aby kontynuować",
+    "email_label": "Email",
+    "email_placeholder": "twoj@email.com",
+    "password_label": "Hasło",
+    "password_placeholder": "••••••••",
+    "login_button": "Zaloguj się",
+    "logging_in": "Logowanie...",
+    "register_button": "Zarejestruj się",
+    "registering": "Rejestrowanie...",
+    "register_success_supabase": "Sprawdź swoją skrzynkę mailową, aby potwierdzić konto!",
+    "unexpected_error": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie."
+  },
+  "profile_page": {
+    "your_profile": "Twój Profil",
+    "loading": "Ładowanie profilu...",
+    "error_load": "Nie udało się załadować profilu.",
+    "profile_picture": "Zdjęcie profilowe",
+    "upload_button": "Wyślij nowy awatar",
+    "uploading_avatar": "Przesyłanie...",
+    "error_select_file": "Proszę wybrać plik do wysłania.",
+    "success_update": "Profil zaktualizowany pomyślnie!",
+    "error_update": "Nie udało się zaktualizować profilu.",
+    "email_label": "Email",
+    "full_name_label": "Imię i nazwisko",
+    "update_button": "Zaktualizuj profil",
+    "updating_profile": "Aktualizowanie..."
+  },
+  "nav": {
+    "home": "Poodle",
+    "profile": "Profil",
+    "logout": "Wyloguj",
+    "login_register": "Zaloguj / Zarejestruj"
+  }
+}

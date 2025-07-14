@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: poodle-backend-prod
+    runtime: docker
+    repo: https://github.com/jansarba/poodle
+    region: frankfurt
+    
+    dockerContext: ./backend
+    dockerfilePath: ./Dockerfile
+
+    plan: free
+    envVars:
+      - key: USE_SUPABASE
+        value: true
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromSecret: SUPABASE_DATABASE_URL
+      - key: SUPABASE_URL
+        fromSecret: SUPABASE_URL
+      - key: SUPABASE_SERVICE_KEY
+        fromSecret: SUPABASE_SERVICE_KEY
+      - key: JWT_SECRET
+        fromSecret: SUPABASE_JWT_SECRET
+
+  - type: web
+    name: poodle-frontend-prod
+    runtime: docker
+    repo: https://github.com/jansarba/poodle
+    region: frankfurt
+
+    dockerContext: ./frontend
+    dockerfilePath: ./Dockerfile
+    
+    plan: free
+    envVars:
+      - key: VITE_USE_SUPABASE
+        value: true
+      - key: VITE_API_BASE_HOST
+        fromService:
+          type: web
+          name: poodle-backend-prod
+          property: host
+      - key: VITE_SUPABASE_URL
+        fromSecret: SUPABASE_URL
+      - key: VITE_SUPABASE_ANON_KEY
+        fromSecret: SUPABASE_ANON_KEY
