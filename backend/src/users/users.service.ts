@@ -29,7 +29,6 @@ export class UsersService {
     private readonly supabase: SupabaseClient | null,
   ) {}
 
-
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {

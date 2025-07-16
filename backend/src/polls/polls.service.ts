@@ -68,7 +68,9 @@ export class PollsService {
     } else if (createVoteDto.voterName) {
       const nameUsed = poll.votes.find(
         (v) =>
-          v.voterName?.toLowerCase() === createVoteDto.voterName.toLowerCase(),
+          v.voterName &&
+          createVoteDto.voterName &&
+          v.voterName.toLowerCase() === createVoteDto.voterName.toLowerCase(),
       );
       if (nameUsed) {
         throw new Error(
