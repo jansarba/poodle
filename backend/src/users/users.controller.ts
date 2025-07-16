@@ -47,7 +47,6 @@ export class UsersController {
     @Req() req: AuthenticatedRequest,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    // <-- Poprawka ESLint
     if (!file) {
       throw new BadRequestException('Avatar file is required.');
     }

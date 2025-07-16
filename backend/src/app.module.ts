@@ -9,7 +9,6 @@ import { PollsModule } from './polls/polls.module';
 import { UsersModule } from './users/users.module';
 import { VotesModule } from './votes/votes.module';
 
-// Dodaj ten import do parsowania stringa połączeniowego
 import { parse as parsePgConnectionString } from 'pg-connection-string';
 
 @Module({
@@ -57,7 +56,7 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
             type: 'postgres',
             url: databaseUrl,
             entities: [User, Poll, Vote],
-            synchronize: true,
+            synchronize: false,
             ssl: { rejectUnauthorized: false },
           };
         } else {
@@ -71,7 +70,7 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
             password: configService.get<string>('POSTGRES_PASSWORD'),
             database: configService.get<string>('POSTGRES_DB'),
             entities: [User, Poll, Vote],
-            synchronize: true,
+            synchronize: false,
             ssl: false, // SSL wyłączone
           };
         }

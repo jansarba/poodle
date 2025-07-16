@@ -21,7 +21,7 @@ export class Poll {
   @Column({ type: 'text', nullable: true })
   description!: string | null;
 
-  @Column({ name: 'image_url', type: 'text', nullable: true }) // <-- tu poprawka
+  @Column({ name: 'image_url', type: 'text', nullable: true })
   imageUrl!: string | null;
 
   @Column('text', { array: true })
