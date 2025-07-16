@@ -1,5 +1,7 @@
 # 🐩 Poodle
 
+If the free database hasn't been nuked by Render, access the app here: https://poodle.onrender.com/
+
 A full-stack polling application built with modern web technologies for creating and managing polls with real-time voting.
 
 ## 🛠️ Stack
