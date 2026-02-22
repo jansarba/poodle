@@ -35,7 +35,9 @@ export class PollsService {
     return this.pollsRepository.findOne({
       where: { id },
       relations: {
-        votes: true, // Dołącz powiązane głosy
+        votes: {
+          user: true,
+        },
       },
     });
   }
