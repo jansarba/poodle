@@ -8,6 +8,8 @@ import type { Session } from '@supabase/supabase-js';
 export type AuthUser = {
   id: string;
   email: string;
+  full_name?: string | null;
+  avatarUrl?: string | null;
 };
 
 export const user: Writable<AuthUser | null> = writable(null);
@@ -38,7 +40,13 @@ export async function initializeAuth() {
       if (data.session) {
         console.log('AuthStore: Found active Supabase session.');
         session.set(data.session);
-        user.set({ id: data.session.user.id, email: data.session.user.email! });
+        // Fetch full profile to get full_name and avatarUrl
+        try {
+          const profile = await api('users/me');
+          user.set({ id: data.session.user.id, email: data.session.user.email!, full_name: profile.full_name, avatarUrl: profile.avatarUrl });
+        } catch {
+          user.set({ id: data.session.user.id, email: data.session.user.email! });
+        }
       } else {
         console.log('AuthStore: No active Supabase session found.');
       }
@@ -46,11 +54,11 @@ export async function initializeAuth() {
       // Tryb lokalny: szukamy tokenu JWT w localStorage.
       const token = localStorage.getItem('token');
       if (token) {
-        console.log('AuthStore: Found local token, verifying with /auth/me endpoint...');
-        // Używamy naszego helpera `api`, który sam dołączy token do nagłówka.
-        const profile = await api('auth/me');
+        console.log('AuthStore: Found local token, verifying with /users/me endpoint...');
+        // Fetch full profile including full_name and avatarUrl
+        const profile = await api('users/me');
         console.log('AuthStore: Local token is valid. User profile received:', profile);
-        user.set(profile);
+        user.set({ id: profile.id, email: profile.email, full_name: profile.full_name, avatarUrl: profile.avatarUrl });
       } else {
         console.log('AuthStore: No local token found.');
       }
@@ -76,16 +84,26 @@ export async function initializeAuth() {
 // Listener dla zmian stanu w Supabase (uruchamia się tylko w trybie Supabase).
 // Automatycznie aktualizuje stan aplikacji, gdy użytkownik się zaloguje/wyloguje w innej karcie.
 if (browser && useSupabase) {
-  supabase.auth.onAuthStateChange((_event, newSession) => {
+  supabase.auth.onAuthStateChange(async (_event, newSession) => {
     console.log(`AuthStore: Supabase auth state changed. Event: ${_event}`, newSession);
     session.set(newSession);
-    user.set(newSession ? { id: newSession.user.id, email: newSession.user.email! } : null);
-    
+
     // Synchronizujemy token, aby nasz helper `api` mógł go używać (np. do zapytań do naszego backendu).
     if (newSession?.access_token) {
         localStorage.setItem('token', newSession.access_token);
     } else {
         localStorage.removeItem('token');
+    }
+
+    if (newSession) {
+      try {
+        const profile = await api('users/me');
+        user.set({ id: newSession.user.id, email: newSession.user.email!, full_name: profile.full_name, avatarUrl: profile.avatarUrl });
+      } catch {
+        user.set({ id: newSession.user.id, email: newSession.user.email! });
+      }
+    } else {
+      user.set(null);
     }
 
     // Jeśli użytkownik się wylogował, a nie jest na stronie logowania, przekierowujemy go.
