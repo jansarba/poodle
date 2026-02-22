@@ -77,8 +77,10 @@
     "full_name_label": "Imię i nazwisko",
     "update_button": "Zaktualizuj profil",
     "updating_profile": "Aktualizowanie...",
-    "voted_events": "Głosowane wydarzenia",
-    "no_voted_events": "Nie głosowałeś jeszcze w żadnym wydarzeniu."
+    "voted_events": "Twoje wydarzenia",
+    "no_voted_events": "Nie głosowałeś jeszcze w żadnym wydarzeniu.",
+    "profile_details": "Szczegóły profilu",
+    "choose_file": "Wybierz plik"
   },
   "nav": {
     "home": "Poodle",

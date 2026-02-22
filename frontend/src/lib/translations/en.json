@@ -77,8 +77,10 @@
     "full_name_label": "Full Name",
     "update_button": "Update Profile",
     "updating_profile": "Updating...",
-    "voted_events": "Events Voted On",
-    "no_voted_events": "You haven't voted on any events yet."
+    "voted_events": "Your Events",
+    "no_voted_events": "You haven't voted on any events yet.",
+    "profile_details": "Profile Details",
+    "choose_file": "Choose file"
   },
   "nav": {
     "home": "Poodle",

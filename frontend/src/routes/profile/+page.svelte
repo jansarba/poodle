@@ -40,6 +40,7 @@
 
   let full_nameInput = '';
   let avatarFile: FileList;
+  let avatarFileName = '';
 
   onMount(() => {
     const unsubscribe = isLoadingUser.subscribe(async (loadingState) => {
@@ -83,6 +84,16 @@
     }
   }
 
+  function triggerFileInput() {
+    document.getElementById('avatar-upload')?.click();
+  }
+
+  function onFileSelected() {
+    if (avatarFile && avatarFile.length > 0) {
+      avatarFileName = avatarFile[0].name;
+    }
+  }
+
   async function handleUpdateProfile() {
     isUpdating = true;
     errorMessage = '';
@@ -121,9 +132,9 @@
       });
       profile = updatedProfile;
       syncAuthStore();
-      // Resetujemy pole input po udanym uploadzie
       const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
+      avatarFileName = '';
 
       successMessage = $_('profile_page.success_update');
     } catch (err: any) {
@@ -143,38 +154,22 @@
     <p class="text-destructive">{errorMessage}</p>
   {:else if profile}
     <div class="space-y-12">
-      <!-- Avatar section - always visible, upload only with Supabase -->
-      <section class="space-y-4">
-        <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_picture')}</h2>
-        <div class="flex flex-col sm:flex-row items-center gap-6">
-          <img
-            src={profile.avatarUrl ?? '/images/default-avatar.svg'}
-            alt="User avatar"
-            class="h-24 w-24 rounded-full object-cover bg-muted"
-          />
-          {#if useSupabase}
-            <div class="flex-1 w-full space-y-2">
-              <Label for="avatar-upload">Change Avatar</Label>
-              <Input
-                id="avatar-upload"
-                type="file"
-                accept="image/png, image/jpeg"
-                bind:files={avatarFile}
-                disabled={isUploading}
-              />
-              <Button onclick={handleUploadAvatar} disabled={isUploading} class="w-full sm:w-auto">
-                {#if isUploading}
-                  {$_('profile_page.uploading_avatar')}
-                {:else}
-                  {$_('profile_page.upload_button')}
-                {/if}
-              </Button>
-            </div>
+      <!-- Avatar display (no upload controls) -->
+      <section class="flex items-center gap-4">
+        <img
+          src={profile.avatarUrl ?? '/images/default-avatar.svg'}
+          alt="User avatar"
+          class="h-20 w-20 rounded-full object-cover bg-muted border border-border"
+        />
+        <div>
+          <p class="text-lg font-semibold">{profile.full_name?.trim() || profile.email}</p>
+          {#if profile.full_name?.trim()}
+            <p class="text-sm text-muted-foreground">{profile.email}</p>
           {/if}
         </div>
       </section>
 
-      <!-- Voted events section -->
+      <!-- Your events section -->
       <section class="space-y-4">
         <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.voted_events')}</h2>
         {#if votedPolls.length > 0}
@@ -205,7 +200,7 @@
 
       <!-- Profile details section -->
       <section class="space-y-4">
-        <h2 class="text-xl font-semibold border-b pb-2">Profile Details</h2>
+        <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_details')}</h2>
         <form class="space-y-4" on:submit|preventDefault={handleUpdateProfile}>
           <div class="grid w-full items-center gap-1.5">
             <Label for="email">{$_('profile_page.email_label')}</Label>
@@ -236,7 +231,47 @@
         </form>
       </section>
 
-      <!-- Komunikaty zwrotne -->
+      <!-- Profile picture upload section - below details, only with Supabase -->
+      {#if useSupabase}
+        <section class="space-y-4">
+          <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_picture')}</h2>
+          <div class="flex flex-col sm:flex-row items-center gap-6">
+            <img
+              src={profile.avatarUrl ?? '/images/default-avatar.svg'}
+              alt="User avatar"
+              class="h-24 w-24 rounded-full object-cover bg-muted"
+            />
+            <div class="flex-1 w-full space-y-3">
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/png, image/jpeg"
+                bind:files={avatarFile}
+                on:change={onFileSelected}
+                class="hidden"
+                disabled={isUploading}
+              />
+              <div class="flex items-center gap-3">
+                <Button type="button" variant="outline" onclick={triggerFileInput} disabled={isUploading} class="shrink-0">
+                  {$_('profile_page.choose_file')}
+                </Button>
+                {#if avatarFileName}
+                  <span class="text-sm text-muted-foreground truncate">{avatarFileName}</span>
+                {/if}
+              </div>
+              <Button onclick={handleUploadAvatar} disabled={isUploading || !avatarFileName} class="w-full sm:w-auto">
+                {#if isUploading}
+                  {$_('profile_page.uploading_avatar')}
+                {:else}
+                  {$_('profile_page.upload_button')}
+                {/if}
+              </Button>
+            </div>
+          </div>
+        </section>
+      {/if}
+
+      <!-- Feedback messages -->
       {#if successMessage}
         <p class="text-center text-sm text-green-600 dark:text-green-500 transition-opacity duration-300">
           {successMessage}
