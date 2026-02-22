@@ -12,6 +12,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import * as path from 'path';
 
 import { User } from './entities/user.entity';
+import { Vote } from '../votes/entities/vote.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SUPABASE_CLIENT } from '../supabase/supabase.provider';
 
@@ -22,6 +23,9 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Vote)
+    private readonly voteRepository: Repository<Vote>,
 
     // Wstrzykujemy klienta Supabase (lub null, jeśli jest wyłączony).
     // Używamy dekoratora @Inject, aby jawnie wskazać, którego dostawcę chcemy.
@@ -115,5 +119,13 @@ export class UsersService {
     // Krok 4: Zaktualizowanie encji użytkownika i zapisanie w bazie danych.
     user.avatarUrl = urlData.publicUrl;
     return this.userRepository.save(user);
+  }
+
+  async findVotedPolls(userId: string): Promise<Vote[]> {
+    return this.voteRepository.find({
+      where: { userId },
+      relations: { poll: true },
+      order: { votedAt: 'DESC' },
+    });
   }
 }

@@ -76,7 +76,9 @@
     "email_label": "Email",
     "full_name_label": "Imię i nazwisko",
     "update_button": "Zaktualizuj profil",
-    "updating_profile": "Aktualizowanie..."
+    "updating_profile": "Aktualizowanie...",
+    "voted_events": "Głosowane wydarzenia",
+    "no_voted_events": "Nie głosowałeś jeszcze w żadnym wydarzeniu."
   },
   "nav": {
     "home": "Poodle",

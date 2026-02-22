@@ -17,8 +17,21 @@
     email: string;
     avatarUrl: string | null;
   };
-  
+
+  type VotedPoll = {
+    id: string;
+    pollId: string;
+    selectedTimeSlots: string[];
+    votedAt: string;
+    poll: {
+      id: string;
+      title: string;
+      description: string | null;
+    };
+  };
+
   let profile: Profile | null = null;
+  let votedPolls: VotedPoll[] = [];
   let loading = true;
   let isUpdating = false;
   let isUploading = false;
@@ -36,11 +49,15 @@
           goto('/login', { replaceState: true });
           return;
         }
-        
+
         if (!profile) {
           try {
-            const data = await api('users/me');
+            const [data, votes] = await Promise.all([
+              api('users/me'),
+              api('users/me/votes'),
+            ]);
             profile = data;
+            votedPolls = votes;
             full_nameInput = profile?.full_name ?? '';
           } catch (err: any) {
             errorMessage = err.message || $_('profile_page.error_load');
@@ -53,6 +70,19 @@
     return () => unsubscribe();
   });
 
+  function syncAuthStore() {
+    if (profile) {
+      const currentUser = get(user);
+      if (currentUser) {
+        user.set({
+          ...currentUser,
+          full_name: profile.full_name,
+          avatarUrl: profile.avatarUrl,
+        });
+      }
+    }
+  }
+
   async function handleUpdateProfile() {
     isUpdating = true;
     errorMessage = '';
@@ -63,6 +93,7 @@
         body: JSON.stringify({ full_name: full_nameInput }),
       });
       profile = updatedProfile;
+      syncAuthStore();
       successMessage = $_('profile_page.success_update');
     } catch (err: any) {
       errorMessage = err.message || $_('profile_page.error_update');
@@ -76,7 +107,7 @@
       errorMessage = $_('profile_page.error_select_file');
       return;
     }
-    
+
     isUploading = true;
     errorMessage = '';
     successMessage = '';
@@ -89,10 +120,11 @@
         body: formData,
       });
       profile = updatedProfile;
+      syncAuthStore();
       // Resetujemy pole input po udanym uploadzie
       const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
-      
+
       successMessage = $_('profile_page.success_update');
     } catch (err: any) {
       errorMessage = err.message || $_('profile_page.error_update');
@@ -111,23 +143,23 @@
     <p class="text-destructive">{errorMessage}</p>
   {:else if profile}
     <div class="space-y-12">
-      <!-- Sekcja awatara - widoczna tylko z Supabase -->
-      {#if useSupabase}
-        <section class="space-y-4">
-          <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_picture')}</h2>
-          <div class="flex flex-col sm:flex-row items-center gap-6">
-            <img
-              src={profile.avatarUrl ?? `https://api.dicebear.com/7.x/micah/svg?seed=${profile.email}`}
-              alt="User avatar"
-              class="h-24 w-24 rounded-full object-cover bg-muted"
-            />
+      <!-- Avatar section - always visible, upload only with Supabase -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_picture')}</h2>
+        <div class="flex flex-col sm:flex-row items-center gap-6">
+          <img
+            src={profile.avatarUrl ?? '/images/default-avatar.svg'}
+            alt="User avatar"
+            class="h-24 w-24 rounded-full object-cover bg-muted"
+          />
+          {#if useSupabase}
             <div class="flex-1 w-full space-y-2">
               <Label for="avatar-upload">Change Avatar</Label>
-              <Input 
+              <Input
                 id="avatar-upload"
-                type="file" 
-                accept="image/png, image/jpeg" 
-                bind:files={avatarFile} 
+                type="file"
+                accept="image/png, image/jpeg"
+                bind:files={avatarFile}
                 disabled={isUploading}
               />
               <Button onclick={handleUploadAvatar} disabled={isUploading} class="w-full sm:w-auto">
@@ -138,17 +170,46 @@
                 {/if}
               </Button>
             </div>
-          </div>
-        </section>
-      {/if}
+          {/if}
+        </div>
+      </section>
 
-      <!-- Sekcja danych profilu -->
+      <!-- Voted events section -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.voted_events')}</h2>
+        {#if votedPolls.length > 0}
+          <ul class="space-y-2">
+            {#each votedPolls as vote (vote.id)}
+              <li>
+                <a
+                  href="/poll/{vote.poll.id}"
+                  class="block p-3 rounded-md border border-border hover:bg-accent transition-colors"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-medium text-foreground">{vote.poll.title}</span>
+                    <span class="text-xs text-muted-foreground">
+                      {new Date(vote.votedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {#if vote.poll.description}
+                    <p class="text-sm text-muted-foreground mt-1 truncate">{vote.poll.description}</p>
+                  {/if}
+                </a>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="text-muted-foreground italic">{$_('profile_page.no_voted_events')}</p>
+        {/if}
+      </section>
+
+      <!-- Profile details section -->
       <section class="space-y-4">
         <h2 class="text-xl font-semibold border-b pb-2">Profile Details</h2>
         <form class="space-y-4" on:submit|preventDefault={handleUpdateProfile}>
           <div class="grid w-full items-center gap-1.5">
             <Label for="email">{$_('profile_page.email_label')}</Label>
-            <Input 
+            <Input
               id="email"
               type="email"
               value={profile.email}

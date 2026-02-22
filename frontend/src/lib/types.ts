@@ -3,6 +3,12 @@ export interface Vote {
   voterName: string;
   selectedTimeSlots: string[];
   votedAt: Date; // Data jest przesyłana jako string w JSON
+  user?: {
+    id: string;
+    email: string;
+    full_name: string | null;
+    avatarUrl: string | null;
+  } | null;
 }
 
 export interface Poll {
