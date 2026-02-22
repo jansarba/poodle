@@ -60,6 +60,7 @@
     "register_button": "Register",
     "registering": "Registering...",
     "register_success_supabase": "Check your email for the confirmation link!",
+    "user_already_exists": "A user with this email address already exists.",
     "unexpected_error": "An unexpected error occurred. Please try again."
   },
   "profile_page": {
