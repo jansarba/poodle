@@ -59,7 +59,14 @@
               {$_('nav.profile')}
             </a>
             <span class="text-sm text-muted-foreground hidden sm:inline">|</span>
-            <span class="text-sm font-semibold hidden sm:inline">{$user.email}</span>
+            <div class="hidden sm:flex items-center gap-2">
+              <img
+                src={$user.avatarUrl ?? '/images/default-avatar.svg'}
+                alt="avatar"
+                class="w-6 h-6 rounded-full object-cover border border-border"
+              />
+              <span class="text-sm font-semibold">{$user.full_name?.trim() || $user.email}</span>
+            </div>
             <button 
               on:click={logout}
               class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
