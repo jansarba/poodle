@@ -51,8 +51,12 @@
         if (response.error) {
           throw response.error;
         }
-        
+
         if (action === 'register') {
+          if (response.data.user?.identities?.length === 0) {
+            errorMessage = $_('login_page.user_already_exists');
+            return;
+          }
           successMessage = $_('login_page.register_success_supabase');
         }
         // Przekierowanie po udanym logowaniu nastąpi automatycznie przez listener w authStore.

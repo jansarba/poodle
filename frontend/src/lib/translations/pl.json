@@ -60,6 +60,7 @@
     "register_button": "Zarejestruj się",
     "registering": "Rejestrowanie...",
     "register_success_supabase": "Sprawdź swoją skrzynkę mailową, aby potwierdzić konto!",
+    "user_already_exists": "Użytkownik z tym adresem email już istnieje.",
     "unexpected_error": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie."
   },
   "profile_page": {

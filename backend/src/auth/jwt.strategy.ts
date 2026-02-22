@@ -21,11 +21,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private configService: ConfigService) {
     const useSupabase = configService.get<string>('USE_SUPABASE') === 'true';
     const secret = useSupabase
-      ? configService.get<string>('SUPABASE_JWT_SECRET')
+      ? (configService.get<string>('SUPABASE_JWT_SECRET') ??
+        configService.get<string>('JWT_SECRET'))
       : configService.get<string>('JWT_SECRET');
 
     if (!secret) {
-      const keyName = useSupabase ? 'SUPABASE_JWT_SECRET' : 'JWT_SECRET';
+      const keyName = useSupabase
+        ? 'SUPABASE_JWT_SECRET (or JWT_SECRET)'
+        : 'JWT_SECRET';
       throw new Error(
         `JWT secret key (${keyName}) is not defined in .env file.`,
       );

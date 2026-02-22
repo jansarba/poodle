@@ -19,7 +19,7 @@ export async function api(
     
     if (useSupabase) {
       const supabaseSession = get(session);
-      token = supabaseSession?.access_token ?? null;
+      token = supabaseSession?.access_token ?? localStorage.getItem('token');
     } else {
       token = localStorage.getItem('token');
     }
