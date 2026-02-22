@@ -33,6 +33,11 @@ export class UsersController {
     return this.usersService.findOne(req.user.id);
   }
 
+  @Get('me/votes')
+  getMyVotes(@Req() req: AuthenticatedRequest) {
+    return this.usersService.findVotedPolls(req.user.id);
+  }
+
   @Patch('me')
   updateProfile(
     @Req() req: AuthenticatedRequest,
