@@ -159,7 +159,6 @@ export class CreateUserPollVoteTables1682448133455
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Usuń klucze obce w odwrotnej kolejności
     const voteTable = await queryRunner.getTable('vote');
     const voteUserFK = voteTable?.foreignKeys.find(
       (fk) => fk.columnNames.indexOf('user_id') !== -1,

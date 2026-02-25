@@ -42,6 +42,7 @@ export class PollsService {
     });
   }
 
+  // validates slots exist on the poll, prevents duplicate votes
   async addVote(
     pollId: string,
     createVoteDto: CreateVoteDto,
@@ -52,7 +53,6 @@ export class PollsService {
       throw new NotFoundException(`Poll with ID "${pollId}" not found.`);
     }
 
-    // 1. Weryfikacja slotów
     for (const slot of createVoteDto.selectedTimeSlots) {
       if (!poll.timeSlots.includes(slot)) {
         throw new NotFoundException(
@@ -61,7 +61,6 @@ export class PollsService {
       }
     }
 
-    // 2. Sprawdzenie, czy ten user/imię już głosował
     if (userId) {
       const existingVote = poll.votes.find((v) => v.userId === userId);
       if (existingVote) {
@@ -81,7 +80,6 @@ export class PollsService {
       }
     }
 
-    // 3. Utworzenie głosu
     const newVote = this.votesRepository.create({
       ...createVoteDto,
       poll,
