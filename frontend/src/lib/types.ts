@@ -2,7 +2,7 @@ export interface Vote {
   id: string;
   voterName: string;
   selectedTimeSlots: string[];
-  votedAt: Date; // Data jest przesyłana jako string w JSON
+  votedAt: Date; // serialized as ISO string
   user?: {
     id: string;
     email: string;
@@ -16,8 +16,8 @@ export interface Poll {
   title: string;
   description: string;
   timeSlots: string[];
-  createdAt: string; // Data jest przesyłana jako string w JSON
-  imageUrl?: string; // URL do obrazka z Supabase Storage, opcjonalne
+  createdAt: string; // ISO string
+  imageUrl?: string; // Supabase Storage URL
   votes: Vote[];
 }
 

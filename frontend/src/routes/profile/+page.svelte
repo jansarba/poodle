@@ -10,6 +10,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
 
+  // avatar upload only available in supabase mode
   const useSupabase = import.meta.env.VITE_USE_SUPABASE === 'true';
 
   type Profile = {
@@ -42,6 +43,7 @@
   let avatarFile: FileList;
   let avatarFileName = '';
 
+  // wait for auth to finish, then fetch profile + voted polls
   onMount(() => {
     const unsubscribe = isLoadingUser.subscribe(async (loadingState) => {
       if (loadingState === false) {
@@ -71,6 +73,7 @@
     return () => unsubscribe();
   });
 
+  // push profile changes back to the global auth store
   function syncAuthStore() {
     if (profile) {
       const currentUser = get(user);
@@ -154,7 +157,6 @@
     <p class="text-destructive">{errorMessage}</p>
   {:else if profile}
     <div class="space-y-12">
-      <!-- Avatar display (no upload controls) -->
       <section class="flex items-center gap-4">
         <img
           src={profile.avatarUrl ?? '/images/default-avatar.svg'}
@@ -169,7 +171,6 @@
         </div>
       </section>
 
-      <!-- Your events section -->
       <section class="space-y-4">
         <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.voted_events')}</h2>
         {#if votedPolls.length > 0}
@@ -198,7 +199,6 @@
         {/if}
       </section>
 
-      <!-- Profile details section -->
       <section class="space-y-4">
         <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_details')}</h2>
         <form class="space-y-4" on:submit|preventDefault={handleUpdateProfile}>
@@ -231,7 +231,6 @@
         </form>
       </section>
 
-      <!-- Profile picture upload section - below details, only with Supabase -->
       {#if useSupabase}
         <section class="space-y-4">
           <h2 class="text-xl font-semibold border-b pb-2">{$_('profile_page.profile_picture')}</h2>
@@ -271,7 +270,6 @@
         </section>
       {/if}
 
-      <!-- Feedback messages -->
       {#if successMessage}
         <p class="text-center text-sm text-green-600 dark:text-green-500 transition-opacity duration-300">
           {successMessage}

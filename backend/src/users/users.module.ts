@@ -9,7 +9,6 @@ import { SupabaseProvider } from '../supabase/supabase.provider';
 @Module({
   imports: [TypeOrmModule.forFeature([User, Vote])],
   controllers: [UsersController],
-  // Wstrzykujemy nasz serwis oraz warunkowego dostawcę Supabase.
   providers: [UsersService, SupabaseProvider],
   exports: [UsersService],
 })

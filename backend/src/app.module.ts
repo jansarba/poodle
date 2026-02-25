@@ -16,6 +16,7 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    // supabase mode uses DATABASE_URL; local mode uses individual env vars
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,7 +25,6 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
           configService.get<string>('USE_SUPABASE') === 'true';
 
         if (useSupabase) {
-          // --- KONFIGURACJA DLA SUPABASE Z LOGOWANIEM ---
           const databaseUrl = configService.get<string>('DATABASE_URL');
           if (!databaseUrl) {
             throw new Error(
@@ -32,10 +32,8 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
             );
           }
 
-          // --- SEKCJA DEBUGOWANIA ---
           try {
             const parsedConfig = parsePgConnectionString(databaseUrl);
-
             console.log('--- [DEBUG] PARSED DATABASE URL ---');
             console.log('Original URL       :', databaseUrl);
             console.log('Parsed Host        :', parsedConfig.host);
@@ -44,14 +42,9 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
             console.log('Parsed Database    :', parsedConfig.database);
             console.log('-----------------------------------');
           } catch (error) {
-            console.error(
-              '--- [DEBUG] FAILED TO PARSE DATABASE URL ---',
-              error,
-            );
+            console.error('--- [DEBUG] FAILED TO PARSE DATABASE URL ---', error);
           }
-          // --- KONIEC SEKCJI DEBUGOWANIA ---
 
-          // Przekazujemy oryginalny URL dalej do TypeORM
           return {
             type: 'postgres',
             url: databaseUrl,
@@ -60,7 +53,6 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
             ssl: { rejectUnauthorized: false },
           };
         } else {
-          // --- KONFIGURACJA LOKALNA (bez zmian) ---
           console.log('--- [DEBUG] Using LOCAL database configuration ---');
           return {
             type: 'postgres',
@@ -71,7 +63,7 @@ import { parse as parsePgConnectionString } from 'pg-connection-string';
             database: configService.get<string>('POSTGRES_DB'),
             entities: [User, Poll, Vote],
             synchronize: false,
-            ssl: false, // SSL wyłączone
+            ssl: false,
           };
         }
       },

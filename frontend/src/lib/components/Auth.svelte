@@ -26,7 +26,6 @@
     if (error) {
       message = error.message;
     }
-    // Po zalogowaniu SvelteKit powinien automatycznie odświeżyć dane
     loading = false;
   }
 </script>

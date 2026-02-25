@@ -13,6 +13,7 @@
   import { api } from '$lib/utils/api';
   import { user } from '$lib/stores/authStore';
 
+  // derive date-fns locale from app locale
   const dateFnsLocaleStore = derived(locale, ($l) => ($l?.startsWith('pl') ? pl : enUS));
   let dateFnsLocale: Locale;
   dateFnsLocaleStore.subscribe((value) => (dateFnsLocale = value));
@@ -26,11 +27,11 @@
   let isSubmitting = false;
   let isCopied = false;
 
-  // Reaktywna zmienna sprawdzająca, czy użytkownik jest zalogowany.
   $: isLoggedIn = !!$user;
 
   $: totalVotes = poll?.votes.length ?? 0;
 
+  // time slots with the highest vote count
   $: bestSlots = (() => {
     if (!poll || totalVotes === 0) return [];
     const voteCounts = poll.timeSlots.map((slot) => ({ slot, count: getVoteCount(slot) }));
@@ -39,6 +40,7 @@
     return voteCounts.filter((vc) => vc.count === maxVotes).map((vc) => vc.slot);
   })();
 
+  // full_name > voterName > email fallback
   function displayName(vote: any) {
   return vote.user?.full_name?.trim()
     || vote.voterName?.trim()
@@ -47,8 +49,8 @@
 
   function avatarUrl(vote: any) {
     return vote.user?.avatarUrl
-      ? `${vote.user.avatarUrl}`          
-      : '/images/default-avatar.svg';     
+      ? `${vote.user.avatarUrl}`
+      : '/images/default-avatar.svg';
   }
 
   function getVoteCount(slot: string): number {
@@ -56,6 +58,7 @@
     return poll.votes.filter((vote) => vote.selectedTimeSlots.includes(slot)).length;
   }
 
+  // percentage relative to the best slot, not total votes
   function getVotePercentage(slot: string): number {
     const bestSlotVoteCount = bestSlots.length > 0 ? getVoteCount(bestSlots[0]) : 0;
     if (bestSlotVoteCount === 0) return 0;
@@ -72,15 +75,14 @@
     }, 2500);
   }
 
+  // parse vote dates from json strings
   async function fetchPoll() {
     const pollId = $page.params.id;
     isLoading = true;
     error = '';
     try {
-      // Używamy scentralizowanego helpera `api`
       const pollData = await api(`polls/${pollId}`);
 
-      // Przetwarzamy daty w głosach, aby były obiektami Date
       if (pollData.votes) {
         pollData.votes = pollData.votes.map((vote: any) => ({
           ...vote,
@@ -96,9 +98,10 @@
     }
   }
 
+  // guest users vote with a name, logged-in users with their email
   async function handleVoteSubmit() {
     const pollId = $page.params.id;
-    
+
     if (!isLoggedIn && !voterName.trim()) {
       alert($_('poll_page.validation_alert_name'));
       return;
@@ -107,26 +110,21 @@
       alert($_('poll_page.validation_alert_slots'));
       return;
     }
-    
+
     isSubmitting = true;
     error = '';
 
-    // Dane do wysłania: imię jest brane z formularza (dla anonimowych)
-    // lub z danych zalogowanego użytkownika. Backend i tak użyje ID z tokenu.
     const voteData = {
       voterName: isLoggedIn ? (get(user)?.email ?? 'Authenticated User') : voterName,
       selectedTimeSlots
     };
 
     try {
-      // Helper `api` automatycznie dołączy token, jeśli użytkownik jest zalogowany.
-      // Pasuje to do strategii "passthrough" na backendzie.
       await api(`polls/${pollId}/votes`, {
         method: 'POST',
         body: JSON.stringify(voteData)
       });
 
-      // Resetowanie formularza i odświeżenie danych
       voterName = '';
       selectedTimeSlots = [];
       await fetchPoll();
@@ -143,7 +141,6 @@
 
 <main class="font-sans bg-background text-foreground min-h-screen p-4 md:p-8">
   <div class="max-w-4xl mx-auto">
-    <!-- Top bar -->
     <div class="flex justify-between items-center mb-8">
       <Button href="/" variant="link" class="text-primary hover:text-primary/90 px-0">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -178,10 +175,8 @@
         <span class="block sm:inline">{error}</span>
       </div>
     {:else if poll}
-      <!-- Header / hero -->
       <header class="mb-8 rounded-lg shadow-md overflow-hidden">
         {#if poll.imageUrl}
-          <!-- hero image -->
           <figure class="relative w-full h-64 md:h-72 lg:h-80">
             <img src={poll.imageUrl} alt={poll.title} class="w-full h-full object-cover" />
             <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-transparent"></div>
@@ -193,7 +188,6 @@
             </figcaption>
           </figure>
         {:else}
-          <!-- fallback header without image -->
           <div class="bg-card p-6 text-center rounded-lg">
             <h1 class="text-4xl font-bold text-card-foreground">{poll.title}</h1>
             {#if poll.description}
@@ -203,15 +197,12 @@
         {/if}
       </header>
 
-      <!-- Main grid -->
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <!-- Voting form -->
         <section class="lg:col-span-2 bg-card p-6 rounded-lg shadow-md">
           <h2 class="text-2xl font-semibold text-card-foreground mb-4">
             {$_('poll_page.cast_your_vote')}
           </h2>
           <form on:submit|preventDefault={handleVoteSubmit} class="space-y-6">
-            <!-- Pole "Twoje imię" jest widoczne tylko dla niezalogowanych użytkowników -->
             {#if !isLoggedIn}
               <div>
                 <label for="name" class="block text-sm font-medium text-foreground">
@@ -257,7 +248,6 @@
           </form>
         </section>
 
-        <!-- Results -->
         <section class="lg:col-span-3 bg-card p-6 rounded-lg shadow-md">
           <h2 class="text-2xl font-semibold text-card-foreground mb-4">
             {$_('poll_page.results')}
@@ -265,7 +255,6 @@
 
           {#if totalVotes > 0}
             <div class="space-y-4">
-              <!-- Time slots list -->
               <ul class="space-y-3">
                 {#each poll.timeSlots as slot (slot)}
                   {@const count = getVoteCount(slot)}
@@ -291,7 +280,6 @@
 
               <hr class="my-6 border-border" />
 
-              <!-- Participants list -->
               <h3 class="text-lg font-semibold text-card-foreground">
                 {$_('poll_page.participants_header', { values: { totalVotes } })}
               </h3>
@@ -299,7 +287,6 @@
               <ul class="space-y-2 max-h-48 overflow-y-auto">
                 {#each poll.votes as vote (vote.id)}
                   <li class="text-sm flex items-center justify-between">
-                    <!-- lewa część: awatar + nazwa -->
                     <div class="flex items-center space-x-2">
                       <img
                         src={avatarUrl(vote)}
@@ -309,7 +296,6 @@
                       <span class="text-foreground">{displayName(vote)}</span>
                     </div>
 
-                    <!-- prawa część: data głosu -->
                     {#if vote.votedAt}
                       <span class="text-xs text-muted-foreground">
                         {format(vote.votedAt, 'Pp', { locale: dateFnsLocale })}

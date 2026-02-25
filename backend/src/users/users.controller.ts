@@ -55,7 +55,6 @@ export class UsersController {
     if (!file) {
       throw new BadRequestException('Avatar file is required.');
     }
-    // Jawnie `await` i zwracamy wynik, aby zapewnić, że zwracany typ jest `Promise<User>`
     const updatedUser = await this.usersService.uploadAvatar(req.user.id, file);
     return updatedUser;
   }

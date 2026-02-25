@@ -17,6 +17,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
 
+  // derive date-fns locale from app locale for formatted dates
   const dateFnsLocaleStore = derived(locale, ($l) => ($l?.startsWith('pl') ? pl : enUS));
   let dateFnsLocale: Locale;
   dateFnsLocaleStore.subscribe((value) => (dateFnsLocale = value));
@@ -30,9 +31,10 @@
   let isSubmitting = false;
   let error = '';
 
-  // Formularz tworzenia ankiety jest widoczny tylko, gdy użytkownik jest zalogowany.
+  // only logged-in users can create polls
   $: showCreateForm = !!$user;
 
+  // human-readable label for the date picker
   $: dateRangeLabel = (() => {
     if (selectedDates.length === 0) return $_('home.select_dates');
     if (selectedDates.length === 1) {
@@ -87,7 +89,7 @@
       title = '';
       description = '';
       selectedDates = [];
-      
+
       await fetchPolls();
     } catch (e: any) {
       error = e.message || 'An unknown error occurred while creating the poll.';
@@ -100,13 +102,12 @@
 </script>
 
 <main class="container mx-auto max-w-3xl p-4 md:p-8">
-  
+
   <header class="text-center mb-12">
     <h1 class="text-4xl font-bold tracking-tight">{$_('home.title')}</h1>
     <p class="text-muted-foreground mt-2">{$_('home.subtitle')}</p>
   </header>
 
-  <!-- Sekcja tworzenia ankiety jest renderowana warunkowo -->
   {#if showCreateForm}
     <section class="bg-card text-card-foreground p-6 rounded-lg shadow-md mb-12">
       <h2 class="text-2xl font-semibold mb-6 border-b pb-2">{$_('home.create_poll_header')}</h2>

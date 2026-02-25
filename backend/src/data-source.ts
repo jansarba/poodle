@@ -5,7 +5,7 @@ import { Vote } from './votes/entities/vote.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: 'localhost', // jeśli baza lokalna
+  host: 'localhost',
   port: 5432,
   username: 'postgres',
   password: 'postgres',
@@ -13,6 +13,6 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
   entities: [User, Poll, Vote],
-  migrations: ['src/migrations/*.ts'], // ścieżka do migracji
+  migrations: ['src/migrations/*.ts'],
   subscribers: [],
 });

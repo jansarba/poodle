@@ -18,16 +18,15 @@ export const SupabaseProvider: Provider = {
 
       if (!supabaseUrl || !supabaseServiceKey) {
         throw new Error(
-          'Zmienne środowiskowe SUPABASE_URL lub SUPABASE_SERVICE_KEY nie są ustawione.',
+          'SUPABASE_URL and SUPABASE_SERVICE_KEY must be set.',
         );
       }
 
-      // Tworzymy i zwracamy klienta Supabase z kluczem serwisowym,
-      // który ma uprawnienia do operacji na storage.
+      // Service key grants storage access
       return createClient(supabaseUrl, supabaseServiceKey);
     }
 
-    // W trybie lokalnym, gdzie Supabase nie jest używane, zwracamy null.
+    // Local mode — no Supabase client needed
     return null;
   },
 };

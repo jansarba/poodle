@@ -12,12 +12,10 @@ const useSupabase     = import.meta.env.VITE_USE_SUPABASE === 'true';
 
 const DISABLED_MSG = 'Supabase is disabled in local mode.';
 
-/* ───────────────────── Dummy client (Proxy) ──────────────────── */
+// no-op proxy used in local dev when supabase is disabled
 const createDummyClient = (): SupabaseClient => {
-  /* jeden wspólny błąd AuthError */
   const authError = new AuthError(DISABLED_MSG, 0, 'LOCAL_MODE');
 
-  /* minimalistyczny zestaw metod auth */
   const dummyAuth = {
     signInWithPassword: () =>
       Promise.resolve({ data: { user: null, session: null }, error: authError }),
@@ -31,7 +29,6 @@ const createDummyClient = (): SupabaseClient => {
     })
   };
 
-  /* prosty query-builder zwracany przez from() */
   const dummyQuery = {
     select: () =>
       Promise.resolve({ data: null, error: { message: DISABLED_MSG } } as PostgrestSingleResponse<null>),
@@ -43,7 +40,6 @@ const createDummyClient = (): SupabaseClient => {
       Promise.resolve({ data: null, error: { message: DISABLED_MSG } } as PostgrestSingleResponse<null>)
   };
 
-  /* proxy przechwytujący wywołania właściwości */
   const handler: ProxyHandler<object> = {
     get(_target, prop: string | symbol) {
       switch (prop) {
@@ -51,7 +47,6 @@ const createDummyClient = (): SupabaseClient => {
           return dummyAuth;
         case 'from':
           return () => dummyQuery;
-        /* niezaimplementowane funkcje informują dewelopera */
         case 'storage':
         case 'rpc':
         case 'realtime':
